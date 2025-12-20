@@ -29,7 +29,7 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          token: ${{ secrets.GH_PAGES_DEPLOY_TOKEN }}
+          token: ${{ secrets.GH_PAGES_DEPLOY_TOKEN_DS }}
           branch: gh-pages
           folder: dist
           clean: true
