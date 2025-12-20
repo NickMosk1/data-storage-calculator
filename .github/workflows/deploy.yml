@@ -7,25 +7,28 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
+      
       - name: Install dependencies
         run: npm ci
-
+      
       - name: Build project
         run: npm run build
-
-      - name: Create .nojekyll
-        run: echo "" > dist/.nojekyll
-
+      
+      - name: Setup for GitHub Pages SPA
+        run: |
+          echo "" > dist/.nojekyll
+          cp dist/index.html dist/404.html
+          echo "Force update: $(date)" > dist/version.txt  # Файл для форсинга
+      
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -33,3 +36,4 @@ jobs:
           branch: gh-pages
           folder: dist
           clean: true
+          force: true
