@@ -7,35 +7,29 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # 1. Клонируем репозиторий
       - name: Checkout
         uses: actions/checkout@v3
-      
-      # 2. Устанавливаем Node.js
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-      
-      # 3. Устанавливаем зависимости
+
       - name: Install dependencies
         run: npm ci
-      
-      # 4. Собираем проект
+
       - name: Build project
         run: npm run build
-      
-      # 5. Создаем .nojekyll в dist
+
       - name: Create .nojekyll
         run: echo "" > dist/.nojekyll
-      
-      # 6. Деплоим на GitHub Pages
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          token: ${{ secrets.GH_PAGES_DEPLOY_TOKEN }}  # Используем наш токен
-          branch: gh-pages  # Куда деплоить
-          folder: dist  # Что деплоить
-          clean: true  # Очищать папку перед деплоем
+          token: ${{ secrets.GH_PAGES_DEPLOY_TOKEN }}
+          branch: gh-pages
+          folder: dist
+          clean: true

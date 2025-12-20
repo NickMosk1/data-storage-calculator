@@ -24,11 +24,11 @@ ChartJS.register(
 const GraphsPanel = ({ results }) => {
   const chartRefs = useRef([]);
 
-  if (!results || !results.t || !results.L) {
+  if (!results || !results.t || !results.X) {
     return (
       <div className="tab-content active">
         <div style={{ padding: '20px', textAlign: 'center' }}>
-          <h3>Графики характеристик</h3>
+          <h3>Графики характеристик ПО</h3>
           <p>Нет данных для отображения. Выполните расчеты на вкладке "Ввод данных".</p>
         </div>
       </div>
@@ -36,58 +36,50 @@ const GraphsPanel = ({ results }) => {
   }
 
   const characteristicNames = [
-    "L1 - Остаток денежных средств", 
-    "L2 - Выручка", 
-    "L3 - Прибыль", 
-    "L4 - Активы", 
-    "L5 - Численность",
-    "L6 - Конкурентоспособность", 
-    "L7 - Объем продаж", 
-    "L8 - Инновационность",
-    "L9 - Известность бренда", 
-    "L10 - Материалоемкость", 
-    "L11 - Ремонты",
-    "L12 - Износ оборудования",
-    "L13 - Налоги в бюджет", 
-    "L14 - Социальная сфера", 
-    "L15 - Экологичность"
+    "X₁ - Эффективность функционирования хранилища данных", 
+    "X₂ - Качество ПО", 
+    "X₃ - Корректность ПО", 
+    "X₄ - Надежность ПО", 
+    "X₅ - Доступность ПО",
+    "X₆ - Возможность интенсивного использования ПО", 
+    "X₇ - Прослеживаемость ПО", 
+    "X₈ - Функциональная полнота ПО",
+    "X₉ - Обеспечение требуемой последовательности работ при проектировании", 
+    "X₁₀ - Практичность ПО", 
+    "X₁₁ - Устойчивость к ошибкам данных ПО",
+    "X₁₂ - Эффективность выполнения транзакций",
+    "X₁₃ - Степень мотивации персонала", 
+    "X₁₄ - Удобство тестирования ПО"
   ];
 
-  // Контрастные цвета для троек
   const colorTriplets = [
-    // Первая тройка (L1-L3)
     [
-      '#00aeff', // светло-синий (контрастный)
-      '#ff7c43', // оранжевый (контрастный)
-      '#2f4b7c', // синий (промежуточный)
+      '#00aeff',
+      '#ff7c43',
+      '#2f4b7c',
     ],
-    // Вторая тройка (L4-L6)
     [
-      '#a05195', // фиолетовый
-      '#ffa600', // желтый (контрастный)
-      '#d45087', // розовый
+      '#a05195',
+      '#ffa600',
+      '#d45087',
     ],
-    // Третья тройка (L7-L9)
     [
-      '#665191', // пурпурный
-      '#f95d6a', // красный
-      '#ff7c00', // оранжевый
+      '#665191',
+      '#f95d6a',
+      '#ff7c00',
     ],
-    // Четвертая тройка (L10-L12)
     [
-      '#00a86b', // зеленый
-      '#8a2be2', // сине-фиолетовый
-      '#ff4500', // красно-оранжевый
+      '#00a86b',
+      '#8a2be2',
+      '#ff4500',
     ],
-    // Пятая тройка (L13-L15)
     [
-      '#008080', // бирюзовый
-      '#ff1493', // глубокий розовый
-      '#ffd700', // золотой
+      '#008080',
+      '#ff1493',
+      '#ffd700',
     ]
   ];
 
-  // Функция для нахождения максимального значения в данных
   const getMaxValue = (dataArray) => {
     if (!Array.isArray(dataArray) || dataArray.length === 0) return 1;
     let max = 0;
@@ -100,8 +92,7 @@ const GraphsPanel = ({ results }) => {
     return Math.ceil(max * 1.1 * 10) / 10 || 1;
   };
 
-  // Функция для получения опций с адаптивной шкалой Y
-  const getAdaptiveOptions = (chartData, chartType = 'L') => {
+  const getAdaptiveOptions = (chartData, chartType = 'X') => {
     const maxY = getMaxValue(chartData.datasets.map(ds => ds.data));
     
     return {
@@ -141,13 +132,11 @@ const GraphsPanel = ({ results }) => {
           cornerRadius: 8,
           displayColors: false,
           callbacks: {
-            // Кастомная функция для сортировки элементов тултипа
             beforeBody: function(context) {
-              // Сортируем элементы по значению в убывающем порядке (от большего к меньшему)
               context.sort((a, b) => {
                 const aValue = a.parsed.y;
                 const bValue = b.parsed.y;
-                return bValue - aValue; // сортировка по убыванию
+                return bValue - aValue;
               });
               return '';
             }
@@ -219,7 +208,6 @@ const GraphsPanel = ({ results }) => {
 
   const labels = Array.isArray(results.t) ? results.t.map(t => t.toFixed(2)) : [];
 
-  // Функция для сортировки данных по последнему значению (конечному значению)
   const sortDatasetsByFinalValue = (datasetsWithIndices) => {
     return datasetsWithIndices.sort((a, b) => {
       const aData = a.data;
@@ -227,20 +215,19 @@ const GraphsPanel = ({ results }) => {
       if (!aData || !bData || aData.length === 0 || bData.length === 0) return 0;
       const aLastValue = aData[aData.length - 1];
       const bLastValue = bData[bData.length - 1];
-      return bLastValue - aLastValue; // сортировка по убыванию (чтобы сверху вниз в тултипе)
+      return bLastValue - aLastValue;
     });
   };
 
-  // Создаем данные для группы из 3 характеристик
   const createChartData = (tripletIndex, indices) => {
     const colors = colorTriplets[tripletIndex];
     const datasetsWithIndices = [];
     
     indices.forEach((globalIndex, localIndex) => {
-      if (globalIndex < results.L.length) {
+      if (globalIndex < results.X.length) {
         datasetsWithIndices.push({
-          label: `L${globalIndex + 1}`,
-          data: Array.isArray(results.L[globalIndex]) ? results.L[globalIndex] : [],
+          label: `X${globalIndex + 1}`,
+          data: Array.isArray(results.X[globalIndex]) ? results.X[globalIndex] : [],
           borderColor: colors[localIndex],
           backgroundColor: colors[localIndex] + '20',
           borderWidth: 3,
@@ -254,7 +241,6 @@ const GraphsPanel = ({ results }) => {
       }
     });
     
-    // Сортируем по последнему значению (по убыванию)
     const sortedDatasets = sortDatasetsByFinalValue(datasetsWithIndices);
     
     return {
@@ -275,46 +261,43 @@ const GraphsPanel = ({ results }) => {
     };
   };
 
-  // 5 групп по 3 характеристики
   const chartGroups = [
     {
-      title: "Финансовые показатели I",
-      indices: [0, 1, 2], // L1, L2, L3
+      title: "Основные характеристики эффективности",
+      indices: [0, 1, 2],
       data: null,
       tripletIndex: 0
     },
     {
-      title: "Финансовые показатели II",
-      indices: [3, 4, 5], // L4, L5, L6
+      title: "Эксплуатационные характеристики",
+      indices: [3, 4, 5],
       data: null,
       tripletIndex: 1
     },
     {
-      title: "Операционные показатели I",
-      indices: [6, 7, 8], // L7, L8, L9
+      title: "Функциональные характеристики",
+      indices: [6, 7, 8],
       data: null,
       tripletIndex: 2
     },
     {
-      title: "Операционные показатели II",
-      indices: [9, 10, 11], // L10, L11, L12
+      title: "Качественные характеристики ПО",
+      indices: [9, 10, 11],
       data: null,
       tripletIndex: 3
     },
     {
-      title: "Качественные показатели",
-      indices: [12, 13, 14], // L13, L14, L15
+      title: "Организационные и тестировочные характеристики",
+      indices: [12, 13],
       data: null,
       tripletIndex: 4
     }
   ];
 
-  // Создаем данные для каждой группы
   chartGroups.forEach((group, index) => {
     group.data = createChartData(group.tripletIndex, group.indices);
   });
 
-  // Функция для обработки ссылок на графики
   const handleChartRef = (index) => (ref) => {
     chartRefs.current[index] = ref;
     
@@ -324,11 +307,9 @@ const GraphsPanel = ({ results }) => {
     }
   };
 
-  // Компонент для отображения графика
   const ChartWithLabels = ({ chartData, title, originalIndices, originalColors }) => {
     const chartHeight = 400;
     
-    // Получаем отсортированные метки в порядке убывания конечных значений
     const getSortedLabels = () => {
       const labelsWithValues = [];
       chartData.datasets.forEach((dataset, index) => {
@@ -337,7 +318,7 @@ const GraphsPanel = ({ results }) => {
           const lastValue = data[data.length - 1];
           const originalGlobalIndex = originalIndices[index];
           labelsWithValues.push({
-            label: `L${originalGlobalIndex + 1}`,
+            label: `X${originalGlobalIndex + 1}`,
             value: lastValue,
             color: originalColors[index],
             originalIndex: originalGlobalIndex,
@@ -346,7 +327,6 @@ const GraphsPanel = ({ results }) => {
         }
       });
       
-      // Сортируем по убыванию (чтобы сверху вниз в тултипе)
       return labelsWithValues.sort((a, b) => b.value - a.value);
     };
 
@@ -389,7 +369,7 @@ const GraphsPanel = ({ results }) => {
             <Line 
               ref={handleChartRef(originalIndices[0])}
               data={chartData} 
-              options={getAdaptiveOptions(chartData, 'L')}
+              options={getAdaptiveOptions(chartData, 'X')}
             />
           </div>
         </div>
@@ -423,7 +403,7 @@ const GraphsPanel = ({ results }) => {
           }}>
             {sortedLabels.map((label, idx) => {
               const globalIndex = label.originalIndex;
-              const data = results.L[globalIndex];
+              const data = results.X[globalIndex];
               const max = data && data.length > 0 ? Math.max(...data).toFixed(3) : '0.000';
               const min = data && data.length > 0 ? Math.min(...data).toFixed(3) : '0.000';
               const avg = data && data.length > 0 
@@ -516,7 +496,7 @@ const GraphsPanel = ({ results }) => {
   return (
     <div className="tab-content active">
       <div style={{ padding: '30px' }}>
-        {/* 5 графиков по 3 характеристики */}
+        {/* Графики характеристик ПО */}
         {chartGroups.map((group, index) => (
           <ChartWithLabels
             key={index}

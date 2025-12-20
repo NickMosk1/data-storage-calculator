@@ -3,38 +3,21 @@ import './InputsPanel.css';
 
 const InputsPanel = ({ onCalculate, isCalculating }) => {
   const [fCoeffs, setFCoeffs] = useState({});
-  const [qCoeffs, setQCoeffs] = useState({});
-  const [lParams, setLParams] = useState({});
+  const [xiCoeffs, setXiCoeffs] = useState({});
+  const [xParams, setXParams] = useState({});
   const [isValid, setIsValid] = useState(false);
 
-  // Ключи для localStorage
   const STORAGE_KEYS = {
-    fCoeffs: 'math_model_f_coeffs',
-    qCoeffs: 'math_model_q_coeffs',
-    lParams: 'math_model_l_params',
+    fCoeffs: 'math_model_f_coeffs_data_storage',
+    xiCoeffs: 'math_model_xi_coeffs_data_storage',
+    xParams: 'math_model_x_params_data_storage',
   };
 
   const generateFArguments = useCallback(() => {
     const args = {};
     
-    args[1] = 5;   args[2] = 6;   args[3] = 7;   args[4] = 10;  args[5] = 13;  args[6] = 14;
-    args[7] = 3;   args[8] = 12;  args[10] = 14; args[11] = 15;
-    args[17] = 14; args[12] = 5;  args[13] = 6;  args[14] = 7;  args[18] = 15; args[15] = 10; args[16] = 13;
-    args[25] = 11; args[19] = 1;  args[20] = 5;  args[21] = 6;  args[22] = 7;  args[26] = 14; args[23] = 8;  args[24] = 10; args[27] = 15; args[28] = 9;
-    args[29] = 1;  args[30] = 6;  args[31] = 7;  args[32] = 8;  args[33] = 10; args[34] = 11; args[35] = 13; args[36] = 9;
-    args[37] = 1;  args[38] = 3;  args[39] = 4;  args[40] = 7;  args[41] = 8;  args[42] = 9;
-    args[43] = 4;  args[44] = 6;  args[45] = 13; args[46] = 14; args[47] = 9;
-    args[48] = 4;  args[49] = 6;  args[50] = 7;  args[51] = 11; args[52] = 13; args[53] = 15; args[54] = 5;  args[55] = 9;
-    args[56] = 3;  args[57] = 6;  args[58] = 4;  args[59] = 5;  args[60] = 7;  args[61] = 8;  args[62] = 10;
-    args[63] = 1;  args[64] = 6;  args[65] = 11; args[66] = 12; args[67] = 13; args[68] = 14; args[69] = 9;
-    args[70] = 4;  args[71] = 6;  args[72] = 8;  args[73] = 10; args[74] = 13; args[75] = 5;  args[76] = 7;
-    args[77] = 2;  args[78] = 3;  args[79] = 4;  args[80] = 9;
-    args[81] = 1;  args[82] = 3;  args[83] = 4;  args[84] = 5;  args[85] = 6;  args[86] = 10; args[87] = 14;
-    args[88] = 1;  args[89] = 7;  args[90] = 10; args[91] = 13;
-    args[92] = 2;  args[93] = 3;  args[94] = 4;  args[95] = 6;  args[96] = 8;  args[97] = 9;  args[98] = 11;
-    
-    for (let j = 1; j <= 98; j++) {
-      if (!args[j]) args[j] = 1;
+    for (let j = 1; j <= 155; j++) {
+      args[j] = ((j - 1) % 14) + 1;
     }
     
     return args;
@@ -42,75 +25,69 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
 
   const [fArguments] = useState(generateFArguments());
 
-  // Функция загрузки из localStorage
   const loadFromStorage = () => {
     try {
       const savedFCoeffs = localStorage.getItem(STORAGE_KEYS.fCoeffs);
-      const savedQCoeffs = localStorage.getItem(STORAGE_KEYS.qCoeffs);
-      const savedLParams = localStorage.getItem(STORAGE_KEYS.lParams);
+      const savedXiCoeffs = localStorage.getItem(STORAGE_KEYS.xiCoeffs);
+      const savedXParams = localStorage.getItem(STORAGE_KEYS.xParams);
 
       if (savedFCoeffs) {
         setFCoeffs(JSON.parse(savedFCoeffs));
       }
-      if (savedQCoeffs) {
-        setQCoeffs(JSON.parse(savedQCoeffs));
+      if (savedXiCoeffs) {
+        setXiCoeffs(JSON.parse(savedXiCoeffs));
       }
-      if (savedLParams) {
-        setLParams(JSON.parse(savedLParams));
+      if (savedXParams) {
+        setXParams(JSON.parse(savedXParams));
       }
 
       return {
         hasFCoeffs: !!savedFCoeffs,
-        hasQCoeffs: !!savedQCoeffs,
-        hasLParams: !!savedLParams,
+        hasXiCoeffs: !!savedXiCoeffs,
+        hasXParams: !!savedXParams,
       };
     } catch (error) {
       console.error('Ошибка при загрузке из localStorage:', error);
-      return { hasFCoeffs: false, hasQCoeffs: false, hasLParams: false };
+      return { hasFCoeffs: false, hasXiCoeffs: false, hasXParams: false };
     }
   };
 
-  // Функция сохранения в localStorage
   const saveToStorage = () => {
     try {
       localStorage.setItem(STORAGE_KEYS.fCoeffs, JSON.stringify(fCoeffs));
-      localStorage.setItem(STORAGE_KEYS.qCoeffs, JSON.stringify(qCoeffs));
-      localStorage.setItem(STORAGE_KEYS.lParams, JSON.stringify(lParams));
+      localStorage.setItem(STORAGE_KEYS.xiCoeffs, JSON.stringify(xiCoeffs));
+      localStorage.setItem(STORAGE_KEYS.xParams, JSON.stringify(xParams));
       console.log('Данные сохранены в localStorage');
     } catch (error) {
       console.error('Ошибка при сохранении в localStorage:', error);
     }
   };
 
-  // Автосохранение при изменении данных
   useEffect(() => {
     const hasData = Object.keys(fCoeffs).length > 0 && 
-                    Object.keys(qCoeffs).length > 0 && 
-                    Object.keys(lParams).length > 0;
+                    Object.keys(xiCoeffs).length > 0 && 
+                    Object.keys(xParams).length > 0;
     
     if (hasData) {
-      // Используем debounce для автосохранения
       const timeoutId = setTimeout(() => {
         saveToStorage();
-      }, 500); // Сохраняем через 500 мс после последнего изменения
+      }, 500);
       
       return () => clearTimeout(timeoutId);
     }
-  }, [fCoeffs, qCoeffs, lParams]);
+  }, [fCoeffs, xiCoeffs, xParams]);
 
   useEffect(() => {
-    // При монтировании проверяем, есть ли сохраненные данные
     const savedData = loadFromStorage();
     
-    // Если нет сохраненных данных, инициализируем пустыми значениями
-    if (!savedData.hasFCoeffs && !savedData.hasQCoeffs && !savedData.hasLParams) {
+    if (!savedData.hasFCoeffs && !savedData.hasXiCoeffs && !savedData.hasXParams) {
       initializeData();
     }
   }, []);
 
   const initializeData = () => {
     const initialFCoeffs = {};
-    for (let j = 1; j <= 98; j++) {
+    for (let j = 1; j <= 155; j++) {
       initialFCoeffs[`f${j}_a`] = '';
       initialFCoeffs[`f${j}_b`] = '';
       initialFCoeffs[`f${j}_c`] = '';
@@ -118,32 +95,32 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
     }
     setFCoeffs(initialFCoeffs);
 
-    const initialQCoeffs = {};
+    const initialXiCoeffs = {};
     for (let k = 1; k <= 5; k++) {
-      initialQCoeffs[`q${k}_a`] = '';
-      initialQCoeffs[`q${k}_b`] = '';
-      initialQCoeffs[`q${k}_c`] = '';
-      initialQCoeffs[`q${k}_d`] = '';
+      initialXiCoeffs[`xi${k}_a`] = '';
+      initialXiCoeffs[`xi${k}_b`] = '';
+      initialXiCoeffs[`xi${k}_c`] = '';
+      initialXiCoeffs[`xi${k}_d`] = '';
     }
-    setQCoeffs(initialQCoeffs);
+    setXiCoeffs(initialXiCoeffs);
 
-    const initialLParams = {};
-    for (let i = 1; i <= 15; i++) {
-      initialLParams[`l${i}_min`] = '';
-      initialLParams[`l${i}_init`] = '';
-      initialLParams[`l${i}_max`] = '';
+    const initialXParams = {};
+    for (let i = 1; i <= 14; i++) {
+      initialXParams[`x${i}_min`] = '';
+      initialXParams[`x${i}_init`] = '';
+      initialXParams[`x${i}_max`] = '';
     }
-    setLParams(initialLParams);
+    setXParams(initialXParams);
   };
 
   useEffect(() => {
     validateAll();
-  }, [fCoeffs, qCoeffs, lParams]);
+  }, [fCoeffs, xiCoeffs, xParams]);
 
   const validateAll = () => {
     let valid = true;
 
-    for (let j = 1; j <= 98 && valid; j++) {
+    for (let j = 1; j <= 155 && valid; j++) {
       if (!isValidCoefficient(`f${j}_a`) || !isValidCoefficient(`f${j}_b`) ||
           !isValidCoefficient(`f${j}_c`) || !isValidCoefficient(`f${j}_d`)) {
         valid = false;
@@ -151,16 +128,16 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
     }
 
     for (let k = 1; k <= 5 && valid; k++) {
-      if (!isValidCoefficient(`q${k}_a`) || !isValidCoefficient(`q${k}_b`) ||
-          !isValidCoefficient(`q${k}_c`) || !isValidCoefficient(`q${k}_d`)) {
+      if (!isValidCoefficient(`xi${k}_a`) || !isValidCoefficient(`xi${k}_b`) ||
+          !isValidCoefficient(`xi${k}_c`) || !isValidCoefficient(`xi${k}_d`)) {
         valid = false;
       }
     }
 
-    for (let i = 1; i <= 15 && valid; i++) {
-      const min = parseFloat(lParams[`l${i}_min`]);
-      const init = parseFloat(lParams[`l${i}_init`]);
-      const max = parseFloat(lParams[`l${i}_max`]);
+    for (let i = 1; i <= 14 && valid; i++) {
+      const min = parseFloat(xParams[`x${i}_min`]);
+      const init = parseFloat(xParams[`x${i}_init`]);
+      const max = parseFloat(xParams[`x${i}_max`]);
       
       if (isNaN(min) || isNaN(init) || isNaN(max) || 
           min < 0 || min > 1 || init < 0 || init > 1 || max < 0 || max > 1 ||
@@ -173,23 +150,23 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
   };
 
   const isValidCoefficient = (id) => {
-    const value = parseFloat(fCoeffs[id] || qCoeffs[id]);
+    const value = parseFloat(fCoeffs[id] || xiCoeffs[id]);
     return !isNaN(value) && isFinite(value);
   };
 
   const handleInputChange = (type, id, value) => {
     if (type === 'f') {
       setFCoeffs(prev => ({ ...prev, [id]: value }));
-    } else if (type === 'q') {
-      setQCoeffs(prev => ({ ...prev, [id]: value }));
-    } else if (type === 'l') {
-      setLParams(prev => ({ ...prev, [id]: value }));
+    } else if (type === 'xi') {
+      setXiCoeffs(prev => ({ ...prev, [id]: value }));
+    } else if (type === 'x') {
+      setXParams(prev => ({ ...prev, [id]: value }));
     }
   };
 
   const fillRandomValues = () => {
     const newFCoeffs = {};
-    for (let j = 1; j <= 98; j++) {
+    for (let j = 1; j <= 155; j++) {
       newFCoeffs[`f${j}_a`] = (Math.random() * 2 - 1).toFixed(2);
       newFCoeffs[`f${j}_b`] = (Math.random() * 2 - 1).toFixed(2);
       newFCoeffs[`f${j}_c`] = (Math.random() * 2 - 1).toFixed(2);
@@ -197,35 +174,35 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
     }
     setFCoeffs(newFCoeffs);
 
-    const newQCoeffs = {};
+    const newXiCoeffs = {};
     for (let k = 1; k <= 5; k++) {
-      newQCoeffs[`q${k}_a`] = (Math.random() * 0.1).toFixed(3);
-      newQCoeffs[`q${k}_b`] = (Math.random() * 0.1).toFixed(3);
-      newQCoeffs[`q${k}_c`] = (Math.random() * 0.2).toFixed(3);
-      newQCoeffs[`q${k}_d`] = (Math.random() * 0.5).toFixed(3);
+      newXiCoeffs[`xi${k}_a`] = (Math.random() * 0.1).toFixed(3);
+      newXiCoeffs[`xi${k}_b`] = (Math.random() * 0.1).toFixed(3);
+      newXiCoeffs[`xi${k}_c`] = (Math.random() * 0.2).toFixed(3);
+      newXiCoeffs[`xi${k}_d`] = (Math.random() * 0.5).toFixed(3);
     }
-    setQCoeffs(newQCoeffs);
+    setXiCoeffs(newXiCoeffs);
 
-    const newLParams = {};
-    for (let i = 1; i <= 15; i++) {
+    const newXParams = {};
+    for (let i = 1; i <= 14; i++) {
       const min = Math.random() * 0.3;
       const init = min + Math.random() * (0.7 - min);
       const max = init + Math.random() * (1 - init);
 
-      newLParams[`l${i}_min`] = min.toFixed(2);
-      newLParams[`l${i}_init`] = init.toFixed(2);
-      newLParams[`l${i}_max`] = max.toFixed(2);
+      newXParams[`x${i}_min`] = min.toFixed(2);
+      newXParams[`x${i}_init`] = init.toFixed(2);
+      newXParams[`x${i}_max`] = max.toFixed(2);
     }
-    setLParams(newLParams);
+    setXParams(newXParams);
   };
 
   const handleCalculate = () => {
     if (!isValid) return;
 
     const inputData = {
-      l_params: collectLParams(),
+      x_params: collectXParams(),
       f_coeffs: collectFCoeffs(),
-      q_coeffs: collectQCoeffs(),
+      xi_coeffs: collectXiCoeffs(),
       t_span: [0, 1],
       num_points: 100
     };
@@ -234,13 +211,13 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
     onCalculate(inputData);
   };
 
-  const collectLParams = () => {
+  const collectXParams = () => {
     const params = [];
-    for (let i = 1; i <= 15; i++) {
+    for (let i = 1; i <= 14; i++) {
       params.push({
-        min: parseFloat(lParams[`l${i}_min`]),
-        init: parseFloat(lParams[`l${i}_init`]),
-        max: parseFloat(lParams[`l${i}_max`])
+        min: parseFloat(xParams[`x${i}_min`]),
+        init: parseFloat(xParams[`x${i}_init`]),
+        max: parseFloat(xParams[`x${i}_max`])
       });
     }
     return params;
@@ -248,26 +225,26 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
 
   const collectFCoeffs = () => {
     const coeffs = [];
-    for (let j = 1; j <= 98; j++) {
+    for (let j = 1; j <= 155; j++) {
       coeffs.push({
         a: parseFloat(fCoeffs[`f${j}_a`]),
         b: parseFloat(fCoeffs[`f${j}_b`]),
         c: parseFloat(fCoeffs[`f${j}_c`]),
         d: parseFloat(fCoeffs[`f${j}_d`]),
-        l_index: fArguments[j]
+        x_index: fArguments[j]
       });
     }
     return coeffs;
   };
 
-  const collectQCoeffs = () => {
+  const collectXiCoeffs = () => {
     const coeffs = [];
     for (let k = 1; k <= 5; k++) {
       coeffs.push({
-        a: parseFloat(qCoeffs[`q${k}_a`]),
-        b: parseFloat(qCoeffs[`q${k}_b`]),
-        c: parseFloat(qCoeffs[`q${k}_c`]),
-        d: parseFloat(qCoeffs[`q${k}_d`])
+        a: parseFloat(xiCoeffs[`xi${k}_a`]),
+        b: parseFloat(xiCoeffs[`xi${k}_b`]),
+        c: parseFloat(xiCoeffs[`xi${k}_c`]),
+        d: parseFloat(xiCoeffs[`xi${k}_d`])
       });
     }
     return coeffs;
@@ -276,61 +253,66 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
   const fillGoodValues = () => {
     console.log('Заполнение нормальными значениями...');
     
-    // Хорошие коэффициенты для f (близкие к 0.1-0.3)
     const newFCoeffs = {};
-    for (let j = 1; j <= 98; j++) {
+    for (let j = 1; j <= 155; j++) {
       newFCoeffs[`f${j}_a`] = (Math.random() * 0.1 - 0.05).toFixed(3);
       newFCoeffs[`f${j}_b`] = (Math.random() * 0.2 - 0.1).toFixed(3);
       newFCoeffs[`f${j}_c`] = (Math.random() * 0.3 - 0.15).toFixed(3);
-      newFCoeffs[`f${j}_d`] = (Math.random() * 0.1 + 0.1).toFixed(3); // положительный сдвиг
+      newFCoeffs[`f${j}_d`] = (Math.random() * 0.1 + 0.1).toFixed(3);
     }
     setFCoeffs(newFCoeffs);
 
-    // Маленькие значения для q (возмущения)
-    const newQCoeffs = {};
+    const newXiCoeffs = {};
     for (let k = 1; k <= 5; k++) {
-      newQCoeffs[`q${k}_a`] = (Math.random() * 0.05 - 0.025).toFixed(4);
-      newQCoeffs[`q${k}_b`] = (Math.random() * 0.05 - 0.025).toFixed(4);
-      newQCoeffs[`q${k}_c`] = (Math.random() * 0.1 - 0.05).toFixed(4);
-      newQCoeffs[`q${k}_d`] = (Math.random() * 0.05 + 0.05).toFixed(4); // положительный сдвиг
+      newXiCoeffs[`xi${k}_a`] = (Math.random() * 0.05 - 0.025).toFixed(4);
+      newXiCoeffs[`xi${k}_b`] = (Math.random() * 0.05 - 0.025).toFixed(4);
+      newXiCoeffs[`xi${k}_c`] = (Math.random() * 0.1 - 0.05).toFixed(4);
+      newXiCoeffs[`xi${k}_d`] = (Math.random() * 0.05 + 0.05).toFixed(4);
     }
-    setQCoeffs(newQCoeffs);
+    setXiCoeffs(newXiCoeffs);
 
-    // Реалистичные значения для L
-    const newLParams = {};
-    for (let i = 1; i <= 15; i++) {
-      const min = (Math.random() * 0.2).toFixed(2); // 0-0.2
-      const init = (Math.random() * 0.3 + 0.3).toFixed(2); // 0.3-0.6
-      const max = (Math.random() * 0.3 + 0.7).toFixed(2); // 0.7-1.0
+    const newXParams = {};
+    for (let i = 1; i <= 14; i++) {
+      const min = (Math.random() * 0.2).toFixed(2);
+      const init = (Math.random() * 0.3 + 0.3).toFixed(2);
+      const max = (Math.random() * 0.3 + 0.7).toFixed(2);
       
-      newLParams[`l${i}_min`] = min;
-      newLParams[`l${i}_init`] = init;
-      newLParams[`l${i}_max`] = max;
+      newXParams[`x${i}_min`] = min;
+      newXParams[`x${i}_init`] = init;
+      newXParams[`x${i}_max`] = max;
     }
-    setLParams(newLParams);
-    
-    setDebugInfo('Заполнено нормальными значениями');
+    setXParams(newXParams);
   };
 
   const characteristicNames = [
-    "L1 - Остаток денежных средств", "L2 - Выручка", "L3 - Прибыль", "L4 - Активы", "L5 - Численность",
-    "L6 - Конкурентоспособность", "L7 - Объем продаж в натуральном выражении", "L8 - Инновационность",
-    "L9 - Известность бренда", "L10 - Материалоемкость", "L11 - Количество ремонтов", "L12 - Износ оборудования",
-    "L13 - Налоги в бюджет", "L14 - Социальная сфера", "L15 - Экологичность"
+    "X₁ - Эффективность функционирования хранилища данных",
+    "X₂ - Качество ПО",
+    "X₃ - Корректность ПО",
+    "X₄ - Надежность ПО",
+    "X₅ - Доступность ПО",
+    "X₆ - Возможность интенсивного использования ПО",
+    "X₇ - Прослеживаемость ПО",
+    "X₈ - Функциональная полнота ПО",
+    "X₉ - Обеспечение требуемой последовательности работ при проектировании",
+    "X₁₀ - Практичность ПО",
+    "X₁₁ - Устойчивость к ошибкам данных ПО",
+    "X₁₂ - Эффективность выполнения транзакций",
+    "X₁₃ - Степень мотивации персонала",
+    "X₁₄ - Удобство тестирования ПО"
   ];
 
   return (
     <div className="tab-content active">
       <div className="widgets-container">
         <div className="widget">
-          <h3>Полиномы f<sub>j</sub>(L<sub>i</sub>)</h3>
+          <h3>Полиномы f<sub>j</sub>(X<sub>i</sub>)</h3>
           <div className="scrollable-list" id="f-polynomials-list">
-            {Array.from({ length: 98 }, (_, j) => {
+            {Array.from({ length: 155 }, (_, j) => {
               const funcNum = j + 1;
               const argIndex = fArguments[funcNum];
               return (
                 <div key={j} className="polynomial-item">
-                  f<sub>{funcNum}</sub>(L<sub>{argIndex}</sub>) = 
+                  f<sub>{funcNum}</sub>(X<sub>{argIndex}</sub>) = 
                   <input
                     type="number"
                     step="0.01"
@@ -339,7 +321,7 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
                     onChange={(e) => handleInputChange('f', `f${funcNum}_a`, e.target.value)}
                     placeholder="a"
                   />
-                  × (L<sub>{argIndex}</sub>)³ + 
+                  × (X<sub>{argIndex}</sub>)³ + 
                   <input
                     type="number"
                     step="0.01"
@@ -348,7 +330,7 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
                     onChange={(e) => handleInputChange('f', `f${funcNum}_b`, e.target.value)}
                     placeholder="b"
                   />
-                  × (L<sub>{argIndex}</sub>)² + 
+                  × (X<sub>{argIndex}</sub>)² + 
                   <input
                     type="number"
                     step="0.01"
@@ -357,7 +339,7 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
                     onChange={(e) => handleInputChange('f', `f${funcNum}_c`, e.target.value)}
                     placeholder="c"
                   />
-                  × L<sub>{argIndex}</sub> + 
+                  × X<sub>{argIndex}</sub> + 
                   <input
                     type="number"
                     step="0.01"
@@ -373,19 +355,19 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
         </div>
 
         <div className="widget">
-          <h3>Возмущения q<sub>k</sub>(t)</h3>
-          <div className="scrollable-list" id="q-polynomials-list">
+          <h3>Внешние возмущения ξ<sub>k</sub>(t)</h3>
+          <div className="scrollable-list" id="xi-polynomials-list">
             {Array.from({ length: 5 }, (_, k) => {
               const disturbNum = k + 1;
               return (
                 <div key={k} className="polynomial-item">
-                  q<sub>{disturbNum}</sub>(t) = 
+                  ξ<sub>{disturbNum}</sub>(t) = 
                   <input
                     type="number"
                     step="0.001"
                     className="coefficient-input"
-                    value={qCoeffs[`q${disturbNum}_a`] || ''}
-                    onChange={(e) => handleInputChange('q', `q${disturbNum}_a`, e.target.value)}
+                    value={xiCoeffs[`xi${disturbNum}_a`] || ''}
+                    onChange={(e) => handleInputChange('xi', `xi${disturbNum}_a`, e.target.value)}
                     placeholder="a"
                   />
                   × t³ + 
@@ -393,8 +375,8 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
                     type="number"
                     step="0.001"
                     className="coefficient-input"
-                    value={qCoeffs[`q${disturbNum}_b`] || ''}
-                    onChange={(e) => handleInputChange('q', `q${disturbNum}_b`, e.target.value)}
+                    value={xiCoeffs[`xi${disturbNum}_b`] || ''}
+                    onChange={(e) => handleInputChange('xi', `xi${disturbNum}_b`, e.target.value)}
                     placeholder="b"
                   />
                   × t² + 
@@ -402,8 +384,8 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
                     type="number"
                     step="0.001"
                     className="coefficient-input"
-                    value={qCoeffs[`q${disturbNum}_c`] || ''}
-                    onChange={(e) => handleInputChange('q', `q${disturbNum}_c`, e.target.value)}
+                    value={xiCoeffs[`xi${disturbNum}_c`] || ''}
+                    onChange={(e) => handleInputChange('xi', `xi${disturbNum}_c`, e.target.value)}
                     placeholder="c"
                   />
                   × t + 
@@ -411,8 +393,8 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
                     type="number"
                     step="0.001"
                     className="coefficient-input"
-                    value={qCoeffs[`q${disturbNum}_d`] || ''}
-                    onChange={(e) => handleInputChange('q', `q${disturbNum}_d`, e.target.value)}
+                    value={xiCoeffs[`xi${disturbNum}_d`] || ''}
+                    onChange={(e) => handleInputChange('xi', `xi${disturbNum}_d`, e.target.value)}
                     placeholder="d"
                   />
                 </div>
@@ -422,28 +404,42 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
         </div>
 
         <div className="widget">
-          <h3>Параметры характеристик L<sub>i</sub></h3>
-          <div className="l-params-container">
+          <h3>Параметры характеристик X<sub>i</sub></h3>
+          <div className="x-params-container">
             <div className="characteristics-names">
-              <h4>Характеристики</h4>
-              {characteristicNames.map((name, index) => (
-                <div key={index} className="characteristic-name-item">
-                  {name}
-                </div>
-              ))}
+              <h4>Характеристики ПО</h4>
+              {characteristicNames.map((name, index) => {
+                const parts = name.split(' - ');
+                const number = parts[0];
+                
+                const displayTitle = name.length > 36
+                  ? name.substring(0, 35) + '...'
+                  : name;
+                
+                return (
+                  <div 
+                    key={index} 
+                    className="characteristic-name-item"
+                    title={name}
+                    data-short={number}
+                  >
+                    {displayTitle}
+                  </div>
+                );
+              })}
             </div>
             
             <div className="params-column">
               <h4>Мин</h4>
-              {Array.from({ length: 15 }, (_, i) => (
-                <div key={`min${i}`} className="l-param-item">
+              {Array.from({ length: 14 }, (_, i) => (
+                <div key={`min${i}`} className="x-param-item">
                   <input
                     type="number"
                     step="0.01"
                     min="0"
                     max="1"
-                    value={lParams[`l${i+1}_min`] || ''}
-                    onChange={(e) => handleInputChange('l', `l${i+1}_min`, e.target.value)}
+                    value={xParams[`x${i+1}_min`] || ''}
+                    onChange={(e) => handleInputChange('x', `x${i+1}_min`, e.target.value)}
                     placeholder="0.0-1.0"
                   />
                 </div>
@@ -452,15 +448,15 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
             
             <div className="params-column">
               <h4>Нач</h4>
-              {Array.from({ length: 15 }, (_, i) => (
-                <div key={`init${i}`} className="l-param-item">
+              {Array.from({ length: 14 }, (_, i) => (
+                <div key={`init${i}`} className="x-param-item">
                   <input
                     type="number"
                     step="0.01"
                     min="0"
                     max="1"
-                    value={lParams[`l${i+1}_init`] || ''}
-                    onChange={(e) => handleInputChange('l', `l${i+1}_init`, e.target.value)}
+                    value={xParams[`x${i+1}_init`] || ''}
+                    onChange={(e) => handleInputChange('x', `x${i+1}_init`, e.target.value)}
                     placeholder="0.0-1.0"
                   />
                 </div>
@@ -469,15 +465,15 @@ const InputsPanel = ({ onCalculate, isCalculating }) => {
             
             <div className="params-column">
               <h4>Макс</h4>
-              {Array.from({ length: 15 }, (_, i) => (
-                <div key={`max${i}`} className="l-param-item">
+              {Array.from({ length: 14 }, (_, i) => (
+                <div key={`max${i}`} className="x-param-item">
                   <input
                     type="number"
                     step="0.01"
                     min="0"
                     max="1"
-                    value={lParams[`l${i+1}_max`] || ''}
-                    onChange={(e) => handleInputChange('l', `l${i+1}_max`, e.target.value)}
+                    value={xParams[`x${i+1}_max`] || ''}
+                    onChange={(e) => handleInputChange('x', `x${i+1}_max`, e.target.value)}
                     placeholder="0.0-1.0"
                   />
                 </div>

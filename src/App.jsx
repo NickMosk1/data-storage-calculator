@@ -1,4 +1,3 @@
-// App.jsx
 import { useState } from 'react';
 import InputsPanel from './components/InputsPanel';
 import GraphsPanel from './components/GraphsPanel';
@@ -40,7 +39,7 @@ const App = () => {
 
   return (
     <div className="container">
-      <h1>Калькулятор характеристик продуктовой компании</h1>
+      <h1>Калькулятор характеристик ПО хранилища данных</h1>
       
       {error && (
         <div style={{

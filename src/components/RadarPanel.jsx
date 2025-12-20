@@ -20,46 +20,44 @@ ChartJS.register(
 );
 
 const RadarPanel = ({ results, inputData }) => {
-  const [minValues, setMinValues] = useState(new Array(15).fill(0));
-  const [maxValues, setMaxValues] = useState(new Array(15).fill(1));
+  const [minValues, setMinValues] = useState(new Array(14).fill(0));
+  const [maxValues, setMaxValues] = useState(new Array(14).fill(1));
   const chartRefs = useRef([]);
 
   useEffect(() => {
-    if (inputData && inputData.l_params) {
-      const mins = inputData.l_params.map(p => p.min || 0);
-      const maxs = inputData.l_params.map(p => p.max || 1);
+    if (inputData && inputData.x_params) {
+      const mins = inputData.x_params.map(p => p.min || 0);
+      const maxs = inputData.x_params.map(p => p.max || 1);
       setMinValues(mins);
       setMaxValues(maxs);
     }
   }, [inputData]);
 
   const characteristicNames = [
-    "L1 - Остаток денежных средств", 
-    "L2 - Выручка", 
-    "L3 - Прибыль", 
-    "L4 - Активы", 
-    "L5 - Численность",
-    "L6 - Конкурентоспособность", 
-    "L7 - Объем продаж", 
-    "L8 - Инновационность",
-    "L9 - Известность бренда", 
-    "L10 - Материалоемкость", 
-    "L11 - Ремонты",
-    "L12 - Износ оборудования",
-    "L13 - Налоги в бюджет", 
-    "L14 - Социальная сфера", 
-    "L15 - Экологичность"
+    "X₁ - Эффективность функционирования хранилища данных", 
+    "X₂ - Качество ПО", 
+    "X₃ - Корректность ПО", 
+    "X₄ - Надежность ПО", 
+    "X₅ - Доступность ПО",
+    "X₆ - Возможность интенсивного использования ПО", 
+    "X₇ - Прослеживаемость ПО", 
+    "X₈ - Функциональная полнота ПО",
+    "X₉ - Обеспечение требуемой последовательности работ при проектировании", 
+    "X₁₀ - Практичность ПО", 
+    "X₁₁ - Устойчивость к ошибкам данных ПО",
+    "X₁₂ - Эффективность выполнения транзакций",
+    "X₁₃ - Степень мотивации персонала", 
+    "X₁₄ - Удобство тестирования ПО"
   ];
 
-  // Фиксированные значения времени для 6 графиков
   const timeValues = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
 
-  if (!results || !results.t || !results.L) {
+  if (!results || !results.t || !results.X) {
     return (
       <div className="tab-content active">
         <div style={{ padding: '40px', textAlign: 'center' }}>
           <h2 style={{ fontSize: '28px', marginBottom: '20px', color: '#2c3e50' }}>
-            Лепестковые диаграммы характеристик
+            Лепестковые диаграммы характеристик ПО
           </h2>
           <p style={{ fontSize: '18px', color: '#666' }}>
             Нет данных для отображения. Выполните расчеты на вкладке "Ввод данных".
@@ -69,7 +67,6 @@ const RadarPanel = ({ results, inputData }) => {
     );
   }
 
-  // Находим индекс времени в массиве результатов
   const findTimeIndex = (targetTime) => {
     if (!Array.isArray(results.t) || results.t.length === 0) return 0;
     
@@ -87,10 +84,9 @@ const RadarPanel = ({ results, inputData }) => {
     return closestIndex;
   };
 
-  // Получаем значения для конкретного времени
   const getValuesForTime = (timeValue) => {
     const timeIndex = findTimeIndex(timeValue);
-    return results.L.map((trajectory, i) => {
+    return results.X.map((trajectory, i) => {
       if (!Array.isArray(trajectory) || trajectory.length <= timeIndex) {
         return minValues[i] || 0;
       }
@@ -99,15 +95,23 @@ const RadarPanel = ({ results, inputData }) => {
     });
   };
 
-  // Данные для каждого графика
   const getRadarDataForTime = (timeValue) => {
     const currentValues = getValuesForTime(timeValue);
     
+    const shortNames = characteristicNames.map(name => {
+      const parts = name.split(' - ');
+      if (parts.length > 1) {
+        const fullName = parts[1];
+        if (fullName.length > 20) {
+          return fullName.substring(0, 17) + '...';
+        }
+        return fullName;
+      }
+      return name;
+    });
+    
     return {
-      labels: characteristicNames.map(name => {
-        const shortName = name.split(' - ')[1] || name;
-        return shortName;
-      }),
+      labels: shortNames,
       datasets: [
         {
           label: 'Минимальные значения',
@@ -190,12 +194,12 @@ const RadarPanel = ({ results, inputData }) => {
         },
         pointLabels: {
           font: {
-            size: 18,
+            size: 16,
             family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
             weight: '600'
           },
           color: '#2c3e50',
-          padding: 20,
+          padding: 18,
           backdropColor: 'rgba(255, 255, 255, 0.9)',
           borderRadius: 6
         }
@@ -239,7 +243,7 @@ const RadarPanel = ({ results, inputData }) => {
           label: (context) => {
             const value = context.parsed.r.toFixed(3);
             const charIndex = context.dataIndex;
-            const charName = characteristicNames[charIndex]?.split(' - ')[1] || `L${charIndex + 1}`;
+            const charName = characteristicNames[charIndex]?.split(' - ')[1] || `X${charIndex + 1}`;
             const min = minValues[charIndex] || 0;
             const max = maxValues[charIndex] || 1;
             return `${charName}: ${value} (min: ${min.toFixed(2)}, max: ${max.toFixed(2)})`;

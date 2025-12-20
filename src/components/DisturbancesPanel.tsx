@@ -25,11 +25,11 @@ ChartJS.register(
 const DisturbancesPanel = ({ results }) => {
   const chartRefs = useRef([]);
 
-  if (!results || !results.t || !results.q) {
+  if (!results || !results.t || !results.xi) {
     return (
       <div className="tab-content active">
         <div style={{ padding: '20px', textAlign: 'center' }}>
-          <h3>Графики внешних возмущений</h3>
+          <h3>Графики внешних возмущений (ξ)</h3>
           <p>Нет данных для отображения. Выполните расчеты на вкладке "Ввод данных".</p>
         </div>
       </div>
@@ -37,39 +37,34 @@ const DisturbancesPanel = ({ results }) => {
   }
 
   const disturbanceNames = [
-    "q1 - Макроэкономические факторы",
-    "q2 - Рыночные колебания",
-    "q3 - Технологические изменения",
-    "q4 - Регуляторные изменения",
-    "q5 - Социальные факторы"
+    "ξ₁ - Увеличение количества источников новых данных",
+    "ξ₂ - Частота изменения периодов сдачи финансовой отчетности",
+    "ξ₃ - Сокращение квалифицированной поддержки вендора",
+    "ξ₄ - Рост интенсивности перехода на Open Source решения",
+    "ξ₅ - Увеличение количества новых стандартов Open Source"
   ];
 
   const disturbanceColors = [
     '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087'
   ];
 
-  // Функция для нахождения максимального значения в данных
   const getMaxValue = (data) => {
     if (!Array.isArray(data) || data.length === 0) return 1;
     const max = Math.max(...data);
-    // Добавляем 10% запаса сверху
     return Math.ceil(max * 1.1 * 10) / 10 || 1;
   };
 
-  // Функция для получения опций с адаптивной шкалой Y
   const getAdaptiveOptions = (index, isMainChart = false) => {
     let maxY = 1;
     
     if (isMainChart) {
-      // Для основного графика находим максимальное значение среди всех возмущений
-      const allMaxValues = results.q.map(trajectory => 
+      const allMaxValues = results.xi.map(trajectory => 
         Array.isArray(trajectory) ? Math.max(...trajectory) : 0
       );
       maxY = Math.max(...allMaxValues, 0.1);
       maxY = Math.ceil(maxY * 1.1 * 10) / 10 || 1;
     } else {
-      // Для индивидуального графика находим максимальное значение для конкретного возмущения
-      const trajectory = results.q[index];
+      const trajectory = results.xi[index];
       if (Array.isArray(trajectory)) {
         maxY = Math.max(...trajectory);
         maxY = Math.ceil(maxY * 1.1 * 10) / 10 || 1;
@@ -108,7 +103,7 @@ const DisturbancesPanel = ({ results }) => {
         },
         title: {
           display: true,
-          text: isMainChart ? 'Динамика всех внешних возмущений' : '',
+          text: isMainChart ? 'Динамика всех внешних возмущений (ξ)' : '',
           font: {
             size: isMainChart ? 24 : 0,
             weight: 'bold',
@@ -189,12 +184,12 @@ const DisturbancesPanel = ({ results }) => {
       },
       elements: {
         point: {
-          radius: 0, // Убираем точки, оставляем только линии
-          hoverRadius: 6, // Точки появляются только при наведении
+          radius: 0,
+          hoverRadius: 6,
           hitRadius: 10
         },
         line: {
-          tension: 0.3 // Плавные линии
+          tension: 0.3
         }
       }
     };
@@ -202,11 +197,10 @@ const DisturbancesPanel = ({ results }) => {
 
   const labels = Array.isArray(results.t) ? results.t.map(t => t.toFixed(2)) : [];
 
-  // Данные для основного графика (все возмущения вместе)
   const mainChartData = {
     labels: labels,
-    datasets: results.q.map((trajectory, i) => ({
-      label: `q${i + 1}`,
+    datasets: results.xi.map((trajectory, i) => ({
+      label: `ξ${i + 1}`,
       data: Array.isArray(trajectory) ? trajectory : [],
       borderColor: disturbanceColors[i],
       backgroundColor: disturbanceColors[i] + '20',
@@ -218,11 +212,10 @@ const DisturbancesPanel = ({ results }) => {
     }))
   };
 
-  // Данные для индивидуальных графиков (по одному на каждое возмущение)
-  const individualChartsData = results.q.map((trajectory, i) => ({
+  const individualChartsData = results.xi.map((trajectory, i) => ({
     labels: labels,
     datasets: [{
-      label: `q${i + 1}`,
+      label: `ξ${i + 1}`,
       data: Array.isArray(trajectory) ? trajectory : [],
       borderColor: disturbanceColors[i],
       backgroundColor: disturbanceColors[i] + '20',
@@ -234,9 +227,8 @@ const DisturbancesPanel = ({ results }) => {
     }]
   }));
 
-  // Статистика по возмущениям
   const calculateStatistics = (index) => {
-    const data = results.q[index] || [];
+    const data = results.xi[index] || [];
     if (data.length === 0) return { avg: 0, min: 0, max: 0, std: 0 };
     
     const sum = data.reduce((acc, val) => acc + val, 0);
@@ -250,7 +242,6 @@ const DisturbancesPanel = ({ results }) => {
     return { avg, min, max, std };
   };
 
-  // Функция для обработки ссылок на графики
   const handleChartRef = (index) => (ref) => {
     chartRefs.current[index] = ref;
     
@@ -294,7 +285,7 @@ const DisturbancesPanel = ({ results }) => {
             borderBottom: '3px solid #f0f0f0',
             paddingBottom: '20px'
           }}>
-            Индивидуальные графики возмущений
+            Индивидуальные графики внешних возмущений (ξ)
           </h2>
           
           <div style={{ 
@@ -302,7 +293,7 @@ const DisturbancesPanel = ({ results }) => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(600px, 1fr))',
             gap: '40px'
           }}>
-            {results.q.map((_, index) => {
+            {results.xi.map((_, index) => {
               const stats = calculateStatistics(index);
               
               return (
@@ -325,11 +316,12 @@ const DisturbancesPanel = ({ results }) => {
                   e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)';
                 }}
                 >
-                  {/* Название q1, q2 и т.д. прямо на графике */}
+                  {/* Название ξ₁, ξ₂ и т.д. прямо на графике */}
                   <div style={{
                     position: 'absolute',
                     top: '50%',
                     left: '50%',
+                    transform: 'translate(-50%, -50%)',
                     zIndex: 10,
                     pointerEvents: 'none'
                   }}>
@@ -341,7 +333,7 @@ const DisturbancesPanel = ({ results }) => {
                       textAlign: 'center',
                       userSelect: 'none'
                     }}>
-                      q{index + 1}
+                      ξ{index + 1}
                     </div>
                   </div>
 
@@ -374,7 +366,7 @@ const DisturbancesPanel = ({ results }) => {
                       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
                       color: '#2c3e50'
                     }}>
-                      Статистика для q{index + 1}
+                      Статистика для ξ{index + 1}
                     </h4>
                     
                     <div style={{ 
