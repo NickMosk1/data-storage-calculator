@@ -243,10 +243,9 @@ const RadarPanel = ({ results, inputData }) => {
           label: (context) => {
             const value = context.parsed.r.toFixed(3);
             const charIndex = context.dataIndex;
-            const charName = characteristicNames[charIndex]?.split(' - ')[1] || `X${charIndex + 1}`;
             const min = minValues[charIndex] || 0;
             const max = maxValues[charIndex] || 1;
-            return `${charName}: ${value} (min: ${min.toFixed(2)}, max: ${max.toFixed(2)})`;
+            return `${value} (min: ${min.toFixed(2)}, max: ${max.toFixed(2)})`;
           }
         }
       }
